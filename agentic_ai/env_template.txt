@@ -12,7 +12,7 @@ OPENROUTER_API_KEY=sk-or-v1-your_openrouter_api_key_here
 
 # RapidAPI Key (Optional but Recommended)
 # Get your free API key from: https://rapidapi.com/
-# Subscribe to: Skyscanner API and Hotels.com API
+# Subscribe to: fly-scraper API and Hotels.com API
 # Used for flight and hotel search functionality
 RAPID_API_KEY=your_rapidapi_key_here
 
@@ -47,7 +47,7 @@ SITE_NAME=AI Travel Planner
 #    - Visit: https://rapidapi.com/
 #    - Create a free account
 #    - Subscribe to these APIs:
-#      * Skyscanner API (for flight search)
+#      * fly-scraper API (for flight search)
 #      * Hotels.com API (for hotel search)
 #    - Get your RapidAPI key from dashboard
 #    - Replace the placeholder above
@@ -68,10 +68,10 @@ SITE_NAME=AI Travel Planner
 # OpenRouter API:
 # - 10,000 requests/month
 # - 10 requests/second rate limit
-# - Model: Llama 3.3 8B (free tier)
+
 
 # RapidAPI:
-# - Skyscanner: 100 requests/month
+# - fly-scraper.p.rapidapi.com: 100 requests/month
 # - Hotels.com: 500 requests/month
 # -Fly scrapper API (for hotels, flight search)  
 # - Rate limits vary by API 

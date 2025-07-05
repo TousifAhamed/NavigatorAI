@@ -7,7 +7,7 @@ An intelligent travel planning application that uses AI to create personalized t
 - **AI-Powered Travel Suggestions**: Get personalized destination recommendations
 - **Detailed Itinerary Creation**: Generate comprehensive day-by-day travel plans
 - **Real-time Weather Information**: Check weather conditions for destinations
-- **Flight Search**: Find available flights using Skyscanner API
+- **Flight Search**: Find available flights using fly-scraper API
 - **Hotel Search**: Discover accommodation options using Hotels.com API
 - **Currency Conversion**: Get real-time exchange rates
 - **Interactive Maps**: Visualize destinations with interactive maps
@@ -76,7 +76,7 @@ An intelligent travel planning application that uses AI to create personalized t
 ### 2. RapidAPI Key (Optional but Recommended)
 
 **What it's used for:**
-- Flight search via Skyscanner API
+- Flight search via fly-scraper API
 - Hotel search via Hotels.com API
 - Real-time travel data
 
@@ -84,7 +84,7 @@ An intelligent travel planning application that uses AI to create personalized t
 1. Visit [RapidAPI.com](https://rapidapi.com/)
 2. Create a free account
 3. Subscribe to the following APIs:
-   - **Skyscanner API** (for flight search)
+   - **fly-scraper API** (for flight search)
    - **Hotels.com API** (for hotel search)
    - **Fly scrapper API** (for hotels, flight search)
 4. Get your RapidAPI key from your dashboard
@@ -153,7 +153,7 @@ SITE_NAME=AI Travel Planner
 - **Authentication:** Bearer token in Authorization header
 
 #### RapidAPI Services
-- **Skyscanner API Host:** `skyscanner-api.p.rapidapi.com`
+- **fly-scraper API Host:** `fly-scraper.p.rapidapi.com`
 - **Hotels.com API Host:** `hotels4.p.rapidapi.com`
 - **Authentication:** X-RapidAPI-Key header
 
@@ -212,7 +212,7 @@ Application logs are stored in the `logs/` directory with timestamps. Check thes
 - **Model:** Llama 3.3 8B (free tier)
 
 ### RapidAPI
-- **Skyscanner:** 100 requests/month (free tier)
+- **fly-scraper:** 100 requests/month (free tier)
 - **Hotels.com:** 500 requests/month (free tier)
 - **Rate Limits:** Vary by API
 

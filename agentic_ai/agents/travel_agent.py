@@ -1,7 +1,9 @@
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from tools.travel_tools import ItineraryPlannerTool, FlightSearchTool, HotelSearchTool
+from tools.travel_tools import ItineraryPlannerTool
+from tools.AmadeusFlightSearchTool import AmadeusFlightSearchTool
+from tools.HotelSearchTool import HotelSearchTool
 from tools.travel_utils import logger
 from tools.travel_types import TravelSuggestion, Itinerary
 from pydantic import BaseModel, Field
@@ -21,6 +23,7 @@ class TravelRequest:
     budget: Optional[float] = None
 
 class TravelPreferences(BaseModel):
+    departure_city: Optional[str] = None
     budget_range: Optional[str] = None
     travel_style: Optional[str] = None
     interests: Optional[List[str]] = None
@@ -57,13 +60,9 @@ class TravelAgent:
         # Initialize tools
         self.itinerary_planner = self.config.get('tools', {}).get('itinerary_planner')
         
-        # Initialize flight and hotel search tools
-        self.flight_search = self.config.get('tools', {}).get('flight_search') or FlightSearchTool(
-            api_key=self.config.get('rapidapi_key')
-        )
-        self.hotel_search = self.config.get('tools', {}).get('hotel_search') or HotelSearchTool(
-            api_key=self.config.get('rapidapi_key')
-        )
+        # Initialize flight and hotel search tools with Amadeus
+        self.flight_search = self.config.get('tools', {}).get('flight_search') or AmadeusFlightSearchTool()
+        self.hotel_search = self.config.get('tools', {}).get('hotel_search') or HotelSearchTool()
     
     def update_config(self, preferences: TravelPreferences):
         """Update config with user preferences"""
@@ -126,9 +125,21 @@ class TravelAgent:
         })
         
         try:
-            flights = await self.flight_search.execute(origin, destination, date)
-            logger.log_info("Found flights", {"count": len(flights), "flights": flights})
-            return flights
+            # Use the new Amadeus flight search method
+            result = self.flight_search.flight_search(
+                origin=origin,
+                destination=destination,
+                departure_date=date.strftime('%Y-%m-%d'),
+                adults=1
+            )
+            
+            if isinstance(result, dict) and result.get('data'):
+                flights = result.get('data', [])
+                logger.log_info("Found flights", {"count": len(flights)})
+                return flights
+            else:
+                logger.log_info("No flights found")
+                return []
         except Exception as e:
             logger.log_error(e, "TravelAgent.search_flights")
             # Return simulated data as fallback
@@ -154,9 +165,21 @@ class TravelAgent:
         })
         
         try:
-            hotels = await self.hotel_search.execute(location, check_in, check_out)
-            logger.log_info("Found hotels", {"count": len(hotels), "hotels": hotels})
-            return hotels
+            # Use the new Amadeus hotel search method
+            result = self.hotel_search.hotel_search(
+                location=location,
+                check_in=check_in.strftime('%Y-%m-%d'),
+                check_out=check_out.strftime('%Y-%m-%d'),
+                adults=2
+            )
+            
+            if isinstance(result, dict) and result.get('data'):
+                hotels = result.get('data', [])
+                logger.log_info("Found hotels", {"count": len(hotels)})
+                return hotels
+            else:
+                logger.log_info("No hotels found")
+                return []
         except Exception as e:
             logger.log_error(e, "TravelAgent.search_hotels")
             # Return simulated data as fallback
@@ -368,33 +391,71 @@ class SmartTravelAgent(TravelAgent):
         # Create context from input and preferences
         context = self._build_context(processed_input, preferences)
         
-        prompt = f"""Based on the following travel request and preferences, suggest 2 detailed travel destinations:
+        # Enhanced prompt with a clear JSON structure and example
+        prompt = f"""
+You are an expert travel agent. Your task is to provide two detailed and high-quality travel suggestions based on the user's request and preferences.
+The output must be a JSON array containing exactly two suggestion objects. Do not include any other text or explanations outside of the JSON array.
 
-Travel Request: {processed_input.content}
-Duration: {duration} days
+**User Request:** "{processed_input.content}"
+**Trip Duration:** {duration} days
 
-Preferences:
-- Budget Level: {preferences.budget_range}
-- Travel Style: {preferences.travel_style}
-- Interests: {', '.join(preferences.interests or [])}
-- Group Size: {preferences.group_size}
-- Language: {preferences.language_preference}
-- Dietary Restrictions: {', '.join(preferences.dietary_restrictions or [])}
-- Accommodation Type: {preferences.accommodation_type}
+**User Preferences:**
+- **Budget:** {preferences.budget_range}
+- **Travel Style:** {preferences.travel_style}
+- **Interests:** {', '.join(preferences.interests or ['Not specified'])}
+- **Group Size:** {preferences.group_size}
+- **Accommodation:** {preferences.accommodation_type}
+- **Dietary Needs:** {', '.join(preferences.dietary_restrictions or ['None'])}
 
-Requirements:
-1. Each destination must be suitable for {preferences.travel_style} travelers
-2. All suggestions must fit within {preferences.budget_range} budget level
-3. Accommodate dietary restrictions: {', '.join(preferences.dietary_restrictions or ['None specified'])}
-4. Consider group size of {preferences.group_size} people
-5. Focus on destinations that match interests: {', '.join(preferences.interests or [])}
-6. Suggest specific accommodations that match {preferences.accommodation_type} preference
-7. Include specific prices and details for all suggestions
-8. Each suggestion should be exactly {duration} days
-9. Include REAL destination names and specific locations
-10. Provide DETAILED activities with actual places to visit
+**Instructions:**
+1.  **Destination:** Provide a real city and country.
+2.  **Description:** Write a compelling, brief summary of why this destination is a great fit.
+3.  **Best Time to Visit:** Suggest a realistic time frame.
+4.  **Estimated Budget:** Provide a plausible daily budget in USD per person, matching the user's budget level.
+5.  **Activities:** List 5 specific and engaging activities with real place names.
+6.  **Accommodation Suggestions:** Recommend 3 specific, real hotels or other lodging types that match the user's preference.
+7.  **Transportation:** Suggest 2-3 practical ways to get around.
+8.  **Local Tips:** Offer 3 helpful, unique tips for the destination.
+9.  **Weather Info:** Briefly describe the typical weather.
+10. **Safety Info:** Provide a concise safety overview.
 
-Return exactly 2 destinations in a JSON array with detailed, specific information for each field."""
+**JSON Output Format Example:**
+```json
+[
+  {
+    "destination": "Paris, France",
+    "description": "The City of Light offers a romantic and cultural escape, perfect for art lovers and foodies.",
+    "best_time_to_visit": "April to June or September to November",
+    "estimated_budget": "$150 - $250 per day",
+    "duration": "{duration}",
+    "activities": [
+      "Visit the Louvre Museum to see the Mona Lisa.",
+      "Climb the Eiffel Tower for panoramic city views.",
+      "Explore the charming streets of Montmartre.",
+      "Take a boat cruise on the Seine River.",
+      "Indulge in a food tour in the Le Marais district."
+    ],
+    "accommodation_suggestions": [
+      "Hotel Lutetia (Luxury)",
+      "Le Citizen Hotel (Mid-Range)",
+      "Generator Paris (Budget)"
+    ],
+    "transportation": [
+      "Paris Métro system",
+      "Vélib' bike-sharing",
+      "Walking"
+    ],
+    "local_tips": [
+      "Say 'Bonjour' when entering shops.",
+      "Purchase a Navigo Découverte pass for affordable transport.",
+      "Enjoy a picnic at the Champ de Mars."
+    ],
+    "weather_info": "Mild with four distinct seasons. Summers are warm, winters are cool.",
+    "safety_info": "Generally safe, but be aware of pickpockets in crowded tourist areas."
+  }
+]
+```
+"""
         
         logger.log_info("Generated Prompt", {"prompt": prompt})
         
@@ -546,4 +607,4 @@ Return exactly 2 destinations in a JSON array with detailed, specific informatio
         Always provide practical, actionable advice while being sensitive to cultural differences.
         Consider the user's language preference: {preferences.language_preference}
         """
-        return context 
+        return context

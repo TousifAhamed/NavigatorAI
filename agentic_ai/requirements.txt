@@ -1,21 +1,44 @@
-streamlit>=1.29.0
-transformers>=4.35.0
-torch>=2.0.0
-Pillow>=10.0.0
-python-multipart>=0.0.6
-langdetect>=1.0.9
+# AI Travel Planner - Python Dependencies
+
+# Core Framework
+streamlit>=1.28.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# LangChain & AI
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-community>=0.0.20
+ollama>=0.3.0
+
+# HTTP and API clients
+aiohttp>=3.9.0
 requests>=2.31.0
-folium>=0.15.0
-plotly>=5.17.0
-python-dotenv>=1.0.0
-aiohttp>=3.8.0
-httpx>=0.25.0
-pydantic>=2.0.0
+amadeus>=12.0.0
+
+# Data Processing
+pandas>=2.1.0
 numpy>=1.24.0
-pandas>=2.0.0
-nest_asyncio>=1.5.8
-python-weather>=1.0.0
-forex-python>=1.8.0
+pydantic>=2.5.0
+
+# Currency & Finance
+currency_converter>=0.5.5
+forex-python>=1.8
+
+# Weather
+python-weather>=2.0.0
+
+# Location & Geography  
+geopy>=2.4.0
 overpass>=0.7.0
-geopy>=2.3.0 
-logging
+
+# Environment & Configuration
+python-dotenv>=1.0.0
+
+# Utilities
+nest-asyncio>=1.5.0
+python-dateutil>=2.8.0
+
+# Development & Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

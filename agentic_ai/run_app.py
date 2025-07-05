@@ -1,94 +1,71 @@
+#!/usr/bin/env python3
 """
-Main entry point for the AI Travel Planner application.
+MCP Server runner for AI Travel Planner
+This script starts the MCP server that provides travel planning tools.
 """
 
 import os
 import sys
 import asyncio
-import nest_asyncio
-import streamlit.web.bootstrap as bootstrap
-import warnings
+from pathlib import Path
+from dotenv import load_dotenv
 
-def setup_environment():
-    """Set up the environment for the application."""
-    # Suppress warnings
-    warnings.filterwarnings('ignore')
-    
-    # Set environment variables
-    os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
-    
-    # Initialize multiprocessing method for Windows
-    if sys.platform == "win32":
-        import multiprocessing
-        try:
-            multiprocessing.set_start_method('spawn', force=True)
-        except RuntimeError:
-            pass
-    
-    # Configure PyTorch
-    try:
-        import torch
-        import torch.backends.cudnn as cudnn
-        # Disable the PyTorch class path warning
-        torch._C._log_api_usage_once = lambda *args, **kwargs: None
-        # Configure CUDA if available
-        if torch.cuda.is_available():
-            cudnn.benchmark = True
-    except ImportError:
-        pass  # PyTorch not installed
-    
-    # Set Streamlit configuration
-    os.environ['STREAMLIT_BROWSER_GATHER_USAGE_STATS'] = 'false'
-    os.environ['STREAMLIT_SERVER_PORT'] = '8501'
+# Ensure we're in the right directory and can import our modules
+current_dir = Path(__file__).parent
+os.chdir(current_dir)
+sys.path.insert(0, str(current_dir))
 
-def run_streamlit():
-    """Run the Streamlit application."""
-    # Ensure we're in the correct directory
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
-    
-    # Add the current directory to Python path
-    if script_dir not in sys.path:
-        sys.path.insert(0, script_dir)
-    
-    # Initialize event loop
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    
-    # Apply nest_asyncio
+def main():
+    """Main entry point for the MCP server"""
     try:
-        nest_asyncio.apply()
-    except Exception:
-        pass
-    
-    # Run the Streamlit app with all required arguments
-    script_path = os.path.join(script_dir, "app.py")
-    bootstrap.run(
-        main_script_path=script_path,
-        is_hello=False,
-        args=[],
-        flag_options={
-            "server.port": 8501,
-            "server.headless": True
-        }
-    )
+        # Load environment variables with explicit path
+        env_path = Path(__file__).parent / '.env'
+        load_dotenv(env_path)
+        
+        # Import required modules
+        import uvicorn
+        from mcp_server.server import MCPServer
+        from mcp_server.tools import register_tools
+        from tools.travel_tools import ItineraryPlannerTool
+        from tools.travel_utils import TravelUtils
+        
+        # Get API configuration
+        openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
+        rapidapi_key = os.getenv('RAPID_API_KEY')
+        
+        # Initialize components
+        planner_tool = ItineraryPlannerTool(
+            openrouter_api_key=openrouter_api_key,
+            site_url=os.getenv('SITE_URL', 'http://localhost:8501'),
+            site_name=os.getenv('SITE_NAME', 'AI Travel Planner')
+        )
+        
+        travel_utils = TravelUtils(rapidapi_key=rapidapi_key)
+        mcp_server = MCPServer()
+        
+        # Register tools and setup agent
+        tools = register_tools(mcp_server, travel_utils, planner_tool)
+        mcp_server.setup_agent(tools)
+        
+        print(f"🌍 AI Travel Planner MCP Server starting...")
+        print(f"🔧 Tools registered: {len(tools)}")
+        print(f"🔑 OpenRouter API: {'✅' if openrouter_api_key else '❌'}")
+        print(f"🔑 RapidAPI: {'✅' if rapidapi_key else '❌'}")
+        print(f"🚀 Server URL: http://localhost:8000")
+        
+        # Start the server
+        uvicorn.run(
+            mcp_server.app, 
+            host="0.0.0.0", 
+            port=8000, 
+            log_level="info"
+        )
+        
+    except Exception as e:
+        print(f"❌ Error starting MCP server: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
-    if not os.getenv('OPENROUTER_API_KEY'):
-        print("❌ OPENROUTER_API_KEY environment variable not set")
-        print("Please set it before running the application")
-        print("You can get an API key from https://openrouter.ai/")
-        sys.exit(1)
-    
-    try:
-        # Set up environment
-        setup_environment()
-        
-        # Run the application
-        run_streamlit()
-    except KeyboardInterrupt:
-        print("\n👋 Shutting down...")
-        sys.exit(0)
-    except Exception as e:
-        print(f"\n❌ Error: {str(e)}")
-        sys.exit(1) 
+    main()
