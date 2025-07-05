@@ -48,6 +48,12 @@ Thumbs.db
 # Project specific
 agentic_ai/logs/
 *.log
+
+# Large model files (use Git LFS if needed)
+*.safetensors
+*.bin
+agentic_ai/model/*/
+agentic_ai/model/
 temp/
 tmp/
 .cache/
