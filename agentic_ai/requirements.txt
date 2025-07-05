@@ -1,0 +1,44 @@
+# AI Travel Planner - Python Dependencies
+
+# Core Framework
+streamlit>=1.28.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# LangChain & AI
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-community>=0.0.20
+ollama>=0.3.0
+
+# HTTP and API clients
+aiohttp>=3.9.0
+requests>=2.31.0
+amadeus>=12.0.0
+
+# Data Processing
+pandas>=2.1.0
+numpy>=1.24.0
+pydantic>=2.5.0
+
+# Currency & Finance
+currency_converter>=0.5.5
+forex-python>=1.8
+
+# Weather
+python-weather>=2.0.0
+
+# Location & Geography  
+geopy>=2.4.0
+overpass>=0.7.0
+
+# Environment & Configuration
+python-dotenv>=1.0.0
+
+# Utilities
+nest-asyncio>=1.5.0
+python-dateutil>=2.8.0
+
+# Development & Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
