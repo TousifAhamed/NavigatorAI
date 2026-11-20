@@ -77,8 +77,8 @@ asyncio.run(test())
 
 ### **Amadeus API Configuration**
 - **Credentials**: Set in `.env` file
-- **API Key**: `AMADEUS_API_KEY=y5II3L6dExWcQqkPV1fpaf2GLv1X3rTZ`
-- **API Secret**: `AMADEUS_API_SECRET=3XkaWRYwWvLSmGLx`
+- **API Key**: `AMADEUS_API_KEY=<your-amadeus-api-key>`
+- **API Secret**: `AMADEUS_API_SECRET=<your-amadeus-api-secret>`
 
 ### **Error Handling**
 - ✅ Graceful fallback to mock data
