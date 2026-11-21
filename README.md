@@ -93,13 +93,25 @@ agentic_ai/
    ```
 
 ### Environment Variables Required
+All keys are read from `agentic_ai/.env` (copy `agentic_ai/env_template.txt` to `.env`). **Never commit `.env`**; it is already in `.gitignore`.
+
+| Variable | Needed for | Where to get it | If missing |
+|---|---|---|---|
+| `OPENROUTER_API_KEY` | AI suggestions & itineraries | https://openrouter.ai → Keys | AI suggestions / itineraries won't work |
+| `AMADEUS_API_KEY` | Flight search (Amadeus) | https://developers.amadeus.com → My Self-Service Workspace → create app → **API Key** | Falls back to sample flight data |
+| `AMADEUS_API_SECRET` | Flight search (Amadeus) | Same app → **API Secret** | Falls back to sample flight data |
+| `RAPID_API_KEY` | Currency conversion, hotels, fly-scraper | https://rapidapi.com → Apps → Authorization (subscribe to fly-scraper and Hotels.com) | Uses built-in fallback exchange rates |
+| `OLLAMA_HOST` *(optional)* | Local model server | Default `http://localhost:11434` | Uses the default |
+| `AGENT_URL` *(optional)* | Frontend → backend URL | Default `http://localhost:8000` | Uses the default |
+
 ```env
-AMADEUS_CLIENT_ID=your_amadeus_client_id
-AMADEUS_CLIENT_SECRET=your_amadeus_client_secret
-RAPIDAPI_KEY=your_rapidapi_key
-CURRENCY_API_KEY=your_currency_api_key
-WEATHER_API_KEY=your_weather_api_key
+OPENROUTER_API_KEY=sk-or-v1-...
+AMADEUS_API_KEY=...
+AMADEUS_API_SECRET=...
+RAPID_API_KEY=...
 ```
+
+> **Security note:** earlier versions of this repo contained real Amadeus and RapidAPI keys in the docs and in `tools/CurrencyTool_new.py`. They have been removed; those keys must be treated as compromised and replaced with your own new keys as shown above.
 
 ## 📖 Usage
 
