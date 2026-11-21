@@ -21,7 +21,7 @@ class CurrencyTool(BaseTravelTool):
     def __init__(self, api_key: str = None):
         super().__init__(api_key)
         # Use the provided RapidAPI key or get from environment
-        self.rapidapi_key = api_key or os.getenv('RAPID_API_KEY') or "ba636c7e69msh28a056533e79d35p1317d3jsn23a5700f9c9d"
+        self.rapidapi_key = api_key or os.getenv('RAPID_API_KEY')
         
         # Fallback exchange rates (approximate) - used when API is unavailable
         self.fallback_rates = {

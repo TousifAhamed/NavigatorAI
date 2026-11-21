@@ -5,7 +5,7 @@
 ### 1. Currency Tool Implementation
 - **File**: `agentic_ai/tools/CurrencyTool.py`
 - **API Used**: RapidAPI Currency Converter (currency-converter241.p.rapidapi.com)
-- **API Key**: `ba636c7e69msh28a056533e79d35p1317d3jsn23a5700f9c9d` (as provided by user)
+- **API Key**: `<your-rapidapi-key>` (as provided by user)
 - **HTTP Method**: Uses `http.client.HTTPSConnection` exactly as requested
 
 ### 2. Code Implementation
@@ -17,7 +17,7 @@ import http.client
 conn = http.client.HTTPSConnection("currency-converter241.p.rapidapi.com")
 
 headers = {
-    'x-rapidapi-key': "ba636c7e69msh28a056533e79d35p1317d3jsn23a5700f9c9d",
+    'x-rapidapi-key': "<your-rapidapi-key>",
     'x-rapidapi-host': "currency-converter241.p.rapidapi.com"
 }
 
